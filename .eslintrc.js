@@ -29,7 +29,8 @@ module.exports = {
     'react/jsx-filename-extension':[
       'warn', {extensions: ['.jsx', '.js']}
     ], //faz com que que seja permitido tb criação de codigo jsx  em arquivos .js e não apenas jsx
-    'import/prefer-default-export':'off' //desobriga usar o export default nos arquivos que tema apenas ume export
-
+    'import/prefer-default-export':'off', //desobriga usar o export default nos arquivos que tema apenas ume export
+    'react/state-in-constructor': [0,'never'],
+    'react/static-property-placement':[0, 'always']
   },
 };
