@@ -54,7 +54,7 @@ export const List = styled.ul`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 5px;
+    margin-top: 10px;
     font-size: 12px;
     font-weight: bold;
     & + li {
