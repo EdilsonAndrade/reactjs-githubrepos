@@ -1,7 +1,19 @@
 import styled, { keyframes, css } from 'styled-components';
 
+export const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px;
+  margin-left: 0;
+  svg {
+    width: 100px;
+    height: 100px;
+    color: #eee;
+  }
+`;
+
 export const Form = styled.form`
-  margin-top: 30px;
   display: flex;
   input {
     flex: 1;

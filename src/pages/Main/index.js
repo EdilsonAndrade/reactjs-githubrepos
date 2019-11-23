@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { GoMarkGithub } from 'react-icons/go';
+
 import { Link } from 'react-router-dom';
 import Container from '../components/Container/index';
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, Logo } from './styles';
 import api from '../../services/api';
 
 export default class Main extends Component {
@@ -53,40 +55,47 @@ export default class Main extends Component {
   render() {
     const { newRepo, loading, repositories } = this.state;
     return (
-      <Container>
-        <h1>
-          <FaGithubAlt />
-          Repositórios
-        </h1>
+      <>
+        <Logo>
+          <GoMarkGithub />
+        </Logo>
+        <Container>
+          <div>
+            <h1>
+              <FaGithubAlt />
+              Repositórios
+            </h1>
 
-        <Form onSubmit={this.handleSubmit}>
-          <input
-            value={newRepo}
-            onChange={this.handleInputChange}
-            type="text"
-            placeholder="Adicionar repositório"
-          />
+            <Form onSubmit={this.handleSubmit}>
+              <input
+                value={newRepo}
+                onChange={this.handleInputChange}
+                type="text"
+                placeholder="Adicionar repositório"
+              />
 
-          <SubmitButton loading={loading || undefined}>
-            {loading ? (
-              <FaSpinner color="#fff" size={14} />
-            ) : (
-              <FaPlus color="#FFF" size={14} />
-            )}
-          </SubmitButton>
-        </Form>
+              <SubmitButton loading={loading || undefined}>
+                {loading ? (
+                  <FaSpinner color="#fff" size={14} />
+                ) : (
+                  <FaPlus color="#FFF" size={14} />
+                )}
+              </SubmitButton>
+            </Form>
 
-        <List>
-          {repositories.map(repo => (
-            <li key={repo.name}>
-              <span>{repo.name}</span>
-              <Link to={`/repository/${encodeURIComponent(repo.name)}`}>
-                Detalhe
-              </Link>
-            </li>
-          ))}
-        </List>
-      </Container>
+            <List>
+              {repositories.map(repo => (
+                <li key={repo.name}>
+                  <span>{repo.name}</span>
+                  <Link to={`/repository/${encodeURIComponent(repo.name)}`}>
+                    Detalhe
+                  </Link>
+                </li>
+              ))}
+            </List>
+          </div>
+        </Container>
+      </>
     );
   }
 }

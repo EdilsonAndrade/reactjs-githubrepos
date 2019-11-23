@@ -9,6 +9,10 @@ const rotate = keyframes`
      transform:scale(2);
    }
 `;
+
+export const RepositoryMain = styled.div`
+  margin-top: 200px;
+`;
 export const Loading = styled.div`
   color: #fff;
 

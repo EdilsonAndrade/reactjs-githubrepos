@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { GoMarkGithub } from 'react-icons/go';
 import api from '../../services/api';
 import Container from '../components/Container/index';
-import { Loading, Owner, Issues } from './styles';
+import { Loading, Owner, Issues, RepositoryMain } from './styles';
 import auth from '../../config/auth';
 
 export default class Repository extends Component {
@@ -49,38 +49,45 @@ export default class Repository extends Component {
 
     if (loading) {
       return (
-        <Loading loading={loading && loading}>
+        <Loading loading={loading && loading.toString()}>
           <GoMarkGithub />
         </Loading>
       );
     }
     return (
-      <Container>
-        <Owner>
-          <Link to="/">Voltar</Link>
-          <img src={repository.owner.avatar_url} alt={repository.owner.login} />
-          <strong>{repository.name}</strong>
-          <p>{repository.description}</p>
-        </Owner>
-        <Issues>
-          {issues.map(issue => (
-            <li key={String(issue.id)}>
-              <img src={issue.user.avatar_url} alt={issue.user.login} />
-              <div>
-                <strong>
-                  <a href={issue.url}>{issue.title}</a>
-                  <span>
-                    {issue.labels.map(label => (
-                      <span>{label.name}</span>
-                    ))}
-                  </span>
-                </strong>
-                <p>{issue.user.login}</p>
-              </div>
-            </li>
-          ))}
-        </Issues>
-      </Container>
+      <>
+        <RepositoryMain>
+          <Container>
+            <Owner>
+              <Link to="/">Voltar</Link>
+              <img
+                src={repository.owner.avatar_url}
+                alt={repository.owner.login}
+              />
+              <strong>{repository.name}</strong>
+              <p>{repository.description}</p>
+            </Owner>
+            <Issues>
+              {issues.map(issue => (
+                <li key={String(issue.id)}>
+                  <img src={issue.user.avatar_url} alt={issue.user.login} />
+                  <div>
+                    <strong>
+                      <a href={issue.url}>{issue.title}</a>
+                      <span>
+                        {issue.labels.map(label => (
+                          <span>{label.name}</span>
+                        ))}
+                      </span>
+                    </strong>
+                    <p>{issue.user.login}</p>
+                  </div>
+                </li>
+              ))}
+            </Issues>
+          </Container>
+        </RepositoryMain>
+      </>
     );
   }
 }
