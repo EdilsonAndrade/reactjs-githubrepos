@@ -11,7 +11,7 @@ const rotate = keyframes`
 `;
 
 export const RepositoryMain = styled.div`
-  margin-top: 200px;
+  margin-top: 100px;
 `;
 export const Loading = styled.div`
   color: #fff;
@@ -64,6 +64,28 @@ export const Owner = styled.header`
   }
 `;
 
+export const Filter = styled.div.attrs(props => ({
+  type: 'submit',
+  active: props.active,
+}))`
+  margin: 10px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  button {
+    margin-right: 5px;
+    padding: 2px;
+    width: 40px;
+    font-size: 10px;
+    background: #eee;
+    border: none;
+
+    &[active='1'] {
+      background: #4758;
+    }
+  }
+`;
 export const Issues = styled.ul`
   list-style: none;
   a {
@@ -112,6 +134,42 @@ export const Issues = styled.ul`
     p {
       font-size: 11px;
       font-weight: 600;
+    }
+  }
+`;
+
+export const Page = styled.div`
+  display: flex;
+  justify-content: center;
+  background: none;
+  text-align: center;
+
+  button {
+    width: 30px;
+    margin-left: 2px;
+    border: 1px solid #7159c1;
+    font-size: 12px;
+    border-radius: 50px;
+  }
+
+  button:hover {
+    background: #745654;
+  }
+  button#backward {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      padding: 2px;
+    }
+  }
+  button#foward {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      padding: 2px;
     }
   }
 `;

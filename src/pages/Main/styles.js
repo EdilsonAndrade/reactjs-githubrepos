@@ -13,7 +13,9 @@ export const Logo = styled.div`
   }
 `;
 
-export const Form = styled.form`
+export const Form = styled.form.attrs(props => ({
+  error: props.error,
+}))`
   display: flex;
   input {
     flex: 1;
@@ -21,6 +23,10 @@ export const Form = styled.form`
     border-radius: 4px;
     border: 1px solid #eee;
     font-size: 16px;
+
+    &[error='1'] {
+      border: 1px solid red;
+    }
   }
 `;
 

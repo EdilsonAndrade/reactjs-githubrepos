@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { GoMarkGithub } from 'react-icons/go';
 import api from '../../services/api';
 import Container from '../components/Container/index';
-import { Loading, Owner, Issues, RepositoryMain } from './styles';
+import { Loading, Owner, Issues, RepositoryMain, Filter, Page } from './styles';
 import auth from '../../config/auth';
 
 export default class Repository extends Component {
@@ -20,32 +20,168 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    issueType: 'open',
+    page: 1,
+    itensPerPage: 2,
+    firstButtonNumber: 0,
+    totalButtonsPage: [],
+    numberOfPages: 0,
   };
 
   async componentDidMount() {
-    const { match } = this.props;
+    const { issueType, page } = this.state;
 
-    const repoName = decodeURIComponent(match.params.repository);
-
-    const [repository, issues] = await Promise.all([
-      api.get(`/repos/${repoName} `, auth),
-      api.get(`/repos/${repoName}/issues`, auth, {
-        params: {
-          state: 'open',
-          per_page: 5,
-        },
-      }),
+    const [repository, issues, totalIssues] = await Promise.all([
+      this.getRepository(),
+      this.getIssues(issueType, page),
+      this.getTotalIssues(issueType),
     ]);
-
+    this.setButtonsPagination(totalIssues, 1);
     this.setState({
       repository: repository.data,
       issues: issues.data,
       loading: false,
     });
+
+    this.setFilterButton('open');
   }
 
+  setButtonsPagination = (totalIssues, startNumber) => {
+    const { itensPerPage } = this.state;
+    const number = startNumber;
+    let numberOfPages = 0;
+    if ((totalIssues / itensPerPage) % 2 === 0) {
+      numberOfPages = totalIssues / itensPerPage;
+    } else {
+      numberOfPages = Math.round(totalIssues / itensPerPage);
+    }
+    let buttonsInPage = [];
+
+    buttonsInPage.push(number);
+
+    if (numberOfPages - number > 0) {
+      buttonsInPage.push(number + 1);
+    } else {
+      buttonsInPage.push(number - 2);
+    }
+    if (numberOfPages - (number + 2) > 0) {
+      buttonsInPage.push(number + 2);
+    } else {
+      buttonsInPage.push(number - 1);
+    }
+
+    buttonsInPage = buttonsInPage.sort((a, b) => {
+      return a - b;
+    });
+
+    let extract = 0;
+
+    extract = number - 1;
+    if (numberOfPages - number <= 2) {
+      extract = numberOfPages - (numberOfPages - number + 2);
+    }
+    this.setState({
+      totalButtonsPage: buttonsInPage,
+      firstButtonNumber: extract,
+      numberOfPages: numberOfPages === buttonsInPage[2] ? 0 : numberOfPages,
+    });
+  };
+
+  handleButtonNumberPage = async pageNumber => {
+    const { issueType } = this.state;
+    this.setState({
+      loading: true,
+    });
+    const [issues, totalIssues] = await Promise.all([
+      this.getIssues(issueType, pageNumber),
+      this.getTotalIssues(issueType),
+    ]);
+    this.setButtonsPagination(totalIssues, pageNumber);
+
+    this.setState({
+      issues: issues.data,
+      loading: false,
+      page: pageNumber,
+    });
+
+    this.setFilterButton(issueType);
+  };
+
+  setFilterButton = id => {
+    const removeButton = document.querySelector("button[active='1']");
+    if (removeButton) {
+      removeButton.removeAttribute('active');
+    }
+    const button = document.getElementById(id);
+
+    if (button) {
+      button.setAttribute('active', '1');
+    }
+  };
+
+  handleSubmit = async e => {
+    e.preventDefault();
+    const { page } = this.state;
+    const buttonId = e.target.id;
+    console.log(buttonId);
+    const [repository, issues, totalIssues] = await Promise.all([
+      this.getRepository(),
+      this.getIssues(buttonId, page),
+      this.getTotalIssues(buttonId),
+    ]);
+    this.setButtonsPagination(totalIssues, 1);
+    this.setState({
+      repository: repository.data,
+      issues: issues.data,
+      loading: false,
+    });
+
+    this.setFilterButton(buttonId);
+  };
+
+  getRepository = () => {
+    const { match } = this.props;
+
+    const repoName = decodeURIComponent(match.params.repository);
+    return api.get(`/repos/${repoName} `, { ...auth });
+  };
+
+  getIssues = async (issueType, page) => {
+    const { match } = this.props;
+    const repoName = decodeURIComponent(match.params.repository);
+    const { itensPerPage } = this.state;
+    return api.get(`/repos/${repoName}/issues`, {
+      params: {
+        state: issueType,
+        per_page: itensPerPage,
+        page,
+      },
+      ...auth,
+    });
+  };
+
+  getTotalIssues = async issueType => {
+    const { match } = this.props;
+    const repoName = decodeURIComponent(match.params.repository);
+
+    const totalIssues = await api.get(`/repos/${repoName}/issues`, {
+      params: {
+        state: issueType,
+      },
+      ...auth,
+    });
+    return totalIssues.data !== null ? totalIssues.data.length : 0;
+  };
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      totalButtonsPage,
+      numberOfPages,
+      firstButtonNumber,
+    } = this.state;
 
     if (loading) {
       return (
@@ -54,6 +190,7 @@ export default class Repository extends Component {
         </Loading>
       );
     }
+
     return (
       <>
         <RepositoryMain>
@@ -66,6 +203,20 @@ export default class Repository extends Component {
               />
               <strong>{repository.name}</strong>
               <p>{repository.description}</p>
+
+              <Filter>
+                <div>
+                  <button type="submit" id="all" onClick={this.handleSubmit}>
+                    All
+                  </button>
+                  <button type="submit" id="open" onClick={this.handleSubmit}>
+                    Open
+                  </button>
+                  <button type="submit" id="closed" onClick={this.handleSubmit}>
+                    Closed
+                  </button>
+                </div>
+              </Filter>
             </Owner>
             <Issues>
               {issues.map(issue => (
@@ -76,7 +227,7 @@ export default class Repository extends Component {
                       <a href={issue.url}>{issue.title}</a>
                       <span>
                         {issue.labels.map(label => (
-                          <span>{label.name}</span>
+                          <span key={label.id}>{label.name}</span>
                         ))}
                       </span>
                     </strong>
@@ -85,6 +236,52 @@ export default class Repository extends Component {
                 </li>
               ))}
             </Issues>
+            <Page>
+              {firstButtonNumber >= 1 ? (
+                <>
+                  <button
+                    type="button"
+                    id="backward"
+                    onClick={() => this.handleButtonNumberPage(1)}
+                  >
+                    <span>&lt;&lt;</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="backward"
+                    onClick={() =>
+                      this.handleButtonNumberPage(firstButtonNumber)
+                    }
+                  >
+                    <span>&lt;</span>
+                  </button>
+                </>
+              ) : (
+                ''
+              )}
+              {totalButtonsPage.map(numberPage => {
+                return (
+                  <button
+                    key={numberPage}
+                    type="button"
+                    onClick={() => this.handleButtonNumberPage(numberPage)}
+                  >
+                    {numberPage}
+                  </button>
+                );
+              })}
+              {numberOfPages > 0 ? (
+                <button
+                  id="foward"
+                  type="button"
+                  onClick={() => this.handleButtonNumberPage(numberOfPages)}
+                >
+                  <span> &gt;&gt;</span>
+                </button>
+              ) : (
+                ''
+              )}
+            </Page>
           </Container>
         </RepositoryMain>
       </>

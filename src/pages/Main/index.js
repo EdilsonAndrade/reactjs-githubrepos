@@ -12,6 +12,7 @@ export default class Main extends Component {
     newRepo: '',
     repositories: [],
     loading: false,
+    error: false,
   };
 
   componentDidMount() {
@@ -31,29 +32,45 @@ export default class Main extends Component {
   }
 
   handleInputChange = e => {
-    this.setState({ newRepo: e.target.value });
+    this.setState({ newRepo: e.target.value, error: false });
   };
 
   handleSubmit = async e => {
     e.preventDefault();
+    try {
+      this.setState({
+        error: false,
+      });
+      this.setState({ loading: true });
+      const { newRepo, repositories } = this.state;
 
-    this.setState({ loading: true });
-    const { newRepo, repositories } = this.state;
-    const response = await api.get(`/repos/${newRepo}`);
+      const response = await api.get(`/repos/${newRepo}`);
 
-    const data = {
-      name: response.data.full_name,
-    };
+      const existRepositories = repositories.find(
+        repo => repo.name === response.data.full_name
+      );
+      if (existRepositories) {
+        throw new Error('Repositório já adicionado');
+      }
+      const data = {
+        name: response.data.full_name,
+      };
 
-    this.setState({
-      repositories: [...repositories, data], // conceito de mutabilidade, copiando as informações ja existentes e adicionando a que eu quero,
-      newRepo: '',
-      loading: false,
-    });
+      this.setState({
+        repositories: [...repositories, data], // conceito de mutabilidade, copiando as informações ja existentes e adicionando a que eu quero,
+        newRepo: '',
+        loading: false,
+      });
+    } catch (error) {
+      this.setState({
+        error: true,
+        loading: false,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
     return (
       <>
         <Logo>
@@ -71,10 +88,10 @@ export default class Main extends Component {
                 value={newRepo}
                 onChange={this.handleInputChange}
                 type="text"
-                placeholder="Adicionar repositório"
+                error={error ? 1 : 0}
               />
 
-              <SubmitButton loading={loading || undefined}>
+              <SubmitButton loading={loading ? 1 : 0}>
                 {loading ? (
                   <FaSpinner color="#fff" size={14} />
                 ) : (
