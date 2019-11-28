@@ -22,7 +22,7 @@ export default class Repository extends Component {
     loading: true,
     issueType: 'open',
     page: 1,
-    itensPerPage: 2,
+    itensPerPage: 3,
     firstButtonNumber: 0,
     totalButtonsPage: [],
     numberOfPages: 0,
@@ -56,30 +56,33 @@ export default class Repository extends Component {
       numberOfPages = Math.round(totalIssues / itensPerPage);
     }
     let buttonsInPage = [];
+    if (totalIssues > itensPerPage) {
+      buttonsInPage.push(number);
 
-    buttonsInPage.push(number);
+      if (numberOfPages - number > 0) {
+        buttonsInPage.push(number + 1);
+      } else {
+        buttonsInPage.push(number - 2);
+      }
+      if (numberOfPages - (number + 2) > 0) {
+        buttonsInPage.push(number + 2);
+      } else {
+        buttonsInPage.push(number - 1);
+      }
 
-    if (numberOfPages - number > 0) {
-      buttonsInPage.push(number + 1);
-    } else {
-      buttonsInPage.push(number - 2);
+      buttonsInPage = buttonsInPage.sort((a, b) => {
+        return a - b;
+      });
     }
-    if (numberOfPages - (number + 2) > 0) {
-      buttonsInPage.push(number + 2);
-    } else {
-      buttonsInPage.push(number - 1);
-    }
-
-    buttonsInPage = buttonsInPage.sort((a, b) => {
-      return a - b;
-    });
 
     let extract = 0;
-
-    extract = number - 1;
-    if (numberOfPages - number <= 2) {
-      extract = numberOfPages - (numberOfPages - number + 2);
+    if (totalIssues > itensPerPage) {
+      extract = number - 1;
+      if (numberOfPages - number <= 2) {
+        extract = numberOfPages - (numberOfPages - number + 2);
+      }
     }
+
     this.setState({
       totalButtonsPage: buttonsInPage,
       firstButtonNumber: extract,
@@ -123,7 +126,9 @@ export default class Repository extends Component {
     e.preventDefault();
     const { page } = this.state;
     const buttonId = e.target.id;
-    console.log(buttonId);
+    this.setState({
+      loading: true,
+    });
     const [repository, issues, totalIssues] = await Promise.all([
       this.getRepository(),
       this.getIssues(buttonId, page),
@@ -134,6 +139,7 @@ export default class Repository extends Component {
       repository: repository.data,
       issues: issues.data,
       loading: false,
+      issueType: buttonId,
     });
 
     this.setFilterButton(buttonId);
@@ -207,13 +213,13 @@ export default class Repository extends Component {
               <Filter>
                 <div>
                   <button type="submit" id="all" onClick={this.handleSubmit}>
-                    All
+                    Todos
                   </button>
                   <button type="submit" id="open" onClick={this.handleSubmit}>
-                    Open
+                    Abertos
                   </button>
                   <button type="submit" id="closed" onClick={this.handleSubmit}>
-                    Closed
+                    Fechados
                   </button>
                 </div>
               </Filter>
@@ -270,7 +276,7 @@ export default class Repository extends Component {
                   </button>
                 );
               })}
-              {numberOfPages > 0 ? (
+              {numberOfPages > 1 ? (
                 <button
                   id="foward"
                   type="button"

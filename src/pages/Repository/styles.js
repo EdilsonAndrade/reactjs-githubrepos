@@ -76,13 +76,16 @@ export const Filter = styled.div.attrs(props => ({
   button {
     margin-right: 5px;
     padding: 2px;
-    width: 40px;
+    width: 60px;
     font-size: 10px;
-    background: #eee;
+    background: #efefef;
     border: none;
+    font-weight: bold;
+    color: #4a90e2;
 
     &[active='1'] {
-      background: #4758;
+      background: #9b9b9b;
+      color: #efefef;
     }
   }
 `;
@@ -147,13 +150,16 @@ export const Page = styled.div`
   button {
     width: 30px;
     margin-left: 2px;
-    border: 1px solid #7159c1;
+    border: 0.5px solid #bbbbbb;
     font-size: 12px;
-    border-radius: 50px;
+    border-radius: 4px;
+    background: #f9f9f9;
+    color: #4a90e2;
   }
 
   button:hover {
-    background: #745654;
+    background: #efefef;
+    color: #9b9b9b;
   }
   button#backward {
     display: flex;
@@ -161,6 +167,7 @@ export const Page = styled.div`
     justify-content: center;
     span {
       padding: 2px;
+      color: #4a90e2;
     }
   }
   button#foward {
@@ -170,6 +177,7 @@ export const Page = styled.div`
     justify-content: center;
     span {
       padding: 2px;
+      color: #4a90e2;
     }
   }
 `;
